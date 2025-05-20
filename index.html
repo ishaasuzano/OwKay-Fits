@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Food Delivery Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: #9a7d62;
+    color: #333;
+  }
+
+  /* Background image with blur */
+  .background {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://cdn.pixabay.com/photo/2017/05/07/08/56/food-2291999_1280.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(10px);
+    z-index: -1;
+  }
+
+  /* Main layout */
+  .container {
+    max-width: 1200px;
+    margin: 60px auto;
+    background: rgba(246, 222, 210, 0.95);
+    border-radius: 15px;
+    display: flex;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+
+  /* Order form styling */
+  .order-form {
+    flex: 1;
+    padding: 40px 50px;
+  }
+  .order-form h1 {
+    margin-bottom: 30px;
+    color: #333;
+    font-weight: 700;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s;
+  }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: #27ae60;
+    outline: none;
+  }
+
+  button {
+    background-color: #322306;
+    color: white;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #219150;
+  }
+
+  /* Receipt styling */
+  .receipt {
+    flex: 1;
+    background-color:  rgba(246, 222, 210, 0.95);
+    padding: 40px 50px;
+    border-left: 2px solid #e1e1e1;
+    overflow-y: auto;
+  }
+  .receipt h2 {
+    margin-top: 0;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 30px;
+  }
+  .receipt-content {
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    font-size: 16px;
+    color: #333;
+  }
+  .receipt-placeholder {
+    color: #aaa;
+    font-style: italic;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .container {
+      flex-direction: column;
+      margin: 20px;
+      border-radius: 12px;
+    }
+    .receipt {
+      border-left: none;
+      border-top: 2px solid #e1e1e1;
+      padding: 30px 20px;
+      max-height: 300px;
+    }
+    .order-form {
+      padding: 30px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="background"></div>
+
+  <div class="container">
+
+    <!-- Order Form -->
+    <div class="order-form">
+      <h1>Place Your Order</h1>
+      <form id="orderForm">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="fullname" placeholder="Your full name" required />
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+        <label for="product">Select Food Item</label>
+        <select id="product" name="product" required>
+          <option value="" disabled selected>Select a food item</option>
+          <option value="Steak" data-price="15">Steak - $15</option>
+          <option value="Burger" data-price="10">Burger - $10</option>
+          <option value="Salad" data-price="12">Salad - $12</option>
+          <option value="Nachos" data-price="20">Nachos - $20</option>
+          <option value="Pasta" data-price="18">Pasta - $18</option>
+        </select>
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" min="1" value="1" required />
+
+        <button type="submit">Submit Order</button>
+      </form>
+    </div>
+
+    <!-- Receipt Area -->
+    <div class="receipt">
+      <h2>Order Receipt</h2>
+      <div id="receiptContent" class="receipt-content">
+        <p class="receipt-placeholder">Your order receipt will appear here after submission.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('orderForm');
+    const receiptDiv = document.getElementById('receiptContent');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = this.fullname.value.trim();
+      const email = this.email.value.trim();
+
+      const productSelect = this.product;
+      const selectedOption = productSelect.options[productSelect.selectedIndex];
+      const product = selectedOption.value;
+      const price = Number(selectedOption.getAttribute('data-price'));
+
+      const quantity = Number(this.quantity.value);
+      const total = price * quantity;
+
+      const now = new Date();
+      const orderDate = now.toLocaleString();
+
+      // Compose receipt text
+      const receiptText = `
+Order Date: ${orderDate}
+
+Customer Name: ${name}
+Email: ${email}
+
+Order Details:
+  - Product: ${product}
+  - Quantity: ${quantity}
+  - Price per item: $${price.toFixed(2)}
+
+------------------------------
+Total Amount: $${total.toFixed(2)}
+
+Thank you for ordering with us!
+We will contact you shortly for delivery details.
+      `;
+
+      // Show receipt
+      receiptDiv.textContent = receiptText;
+
+      // Reset form
+      form.reset();
+      form.product.selectedIndex = 0;
+    });
+  </script>
+
+</body>
+</html>
